@@ -10,15 +10,17 @@ public class Main {
         long startTime = System.currentTimeMillis();
 
         //Read data
-        int maxWordLength = 15;
+        String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
         FileManager fm = new FileManager();
+        fm.createFilter(allowedChars);
+        int maxWordLength = 15;
         fm.edit("czechWordsUnedited.txt", "czechWords.txt", maxWordLength);
         fm.edit("englishWordsUnedited.txt", "englishWords.txt", maxWordLength);
+        fm.edit("germanWordsUnedited.txt", "germanWords.txt", maxWordLength);
         ArrayList<String> czechWords = fm.readTextFile("czechWords.txt");
         ArrayList<String> englishWords = fm.readTextFile("englishWords.txt");
 
         //Create the body of the NN
-        String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýž";
         int hiddenLayerSize = 15;
         int inputLayerSize = allowedChars.length() * maxWordLength;
         Body body = new Body(3, inputLayerSize, allowedChars, maxWordLength);
@@ -39,16 +41,20 @@ public class Main {
         //body.train(100);     //10000 learning iterations so far
 
         //Guess
-        body.guessLanguage("vložit");
-        body.guessLanguage("domov");
-        body.guessLanguage("svitek");
-        body.guessLanguage("zámek");
-        body.guessLanguage("strana");
-        body.guessLanguage("dolů");
-        body.guessLanguage("smazat");
-        body.guessLanguage("konec");
-        body.guessLanguage("pauza");
-        body.guessLanguage("přestávka");
+        /*
+        body.guessLanguage("trousers");
+        body.guessLanguage("shirt");
+        body.guessLanguage("fingers");
+        body.guessLanguage("hand");
+        body.guessLanguage("leg");
+        body.guessLanguage("heart");
+        body.guessLanguage("arm");
+        body.guessLanguage("elbow");
+        body.guessLanguage("head");
+        body.guessLanguage("hair");
+        body.guessLanguage("hairs");
+        body.guessLanguage("nail");
+        */
 
 
 

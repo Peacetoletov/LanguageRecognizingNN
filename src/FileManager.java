@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class FileManager {
-    Filter filter = new Filter();
+    Filter filter;
 
     public void edit(String oldFileName, String newFileName, int maxWordLength){
         ArrayList<String> wordList = readTextFile(oldFileName);
@@ -74,7 +74,7 @@ public class FileManager {
             String line;
 
             while((line = br.readLine()) != null){
-                weights.add(createWeightArray(weights, line));
+                weights.add(createWeightArray(line));
             }
 
         } catch (IOException e){
@@ -89,6 +89,10 @@ public class FileManager {
         }
 
         return weights;
+    }
+
+    public void createFilter(String allowedChars){
+        filter = new Filter(allowedChars);
     }
 
     private void write(String fileName, ArrayList<String> wordList) {
@@ -121,7 +125,7 @@ public class FileManager {
         }
     }
 
-    private Double[] createWeightArray(ArrayList<Double[]> weights, String line){
+    private Double[] createWeightArray(String line){
         int arrayElements = 4;
         Double[] weightArray = new Double[arrayElements];      //weightArray[firstLayer][firstPosition][secondPosition][weight]
         String tempString = "";

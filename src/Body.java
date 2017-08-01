@@ -37,7 +37,6 @@ public class Body {
 
     public void createSynapses(){
         int layersAmount = neuronsInLayer.length;
-
         for (int layer = 0; layer < layersAmount-1; layer++) {   //loop through each neuron layer except the output layer
             for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
                 for (int secondNeuronPos = 0; secondNeuronPos < neuronsInLayer[layer+1]; secondNeuronPos++) {      //loop through each neuron in the next layer

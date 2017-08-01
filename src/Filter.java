@@ -5,6 +5,11 @@ import java.util.HashMap;
  * Created by lukas on 28.7.2017.
  */
 public class Filter {
+    String allowedChars;
+
+    public Filter(String allowedChars){
+        this.allowedChars = allowedChars;
+    }
 
     public ArrayList<String> filterWords(ArrayList<String> wordList, int maxWordLength){
         ArrayList<String> filteredWordList = new ArrayList<>();
@@ -41,7 +46,6 @@ public class Filter {
 
             //Filters
             //Allowed characters
-            String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýž";
             int j;
             for (j = 0; j < allowedChars.length(); j++){
                 if (character == allowedChars.charAt(j)){
