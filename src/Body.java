@@ -9,12 +9,12 @@ public class Body {
     private Synapse[][][] synapseArray;     //synapseArray[firstLayer][firstPosition][secondPosition]
     private int neuronsInLayer[];
     private ArrayList<String> trainingDataInput = new ArrayList<>();
-    private ArrayList<Integer> trainingDataTarget = new ArrayList<>();
-    FileManager fm = new FileManager();
-    String weightsFileName = "weights.txt";
-    String allowedChars;
-    int maxWordLength;
-    ArrayList<Double[]> weightList;
+    private ArrayList<Integer[]> trainingDataTarget = new ArrayList<>();
+    private FileManager fm = new FileManager();
+    private String weightsFileName = "weights.txt";
+    private String allowedChars;
+    private int maxWordLength;
+    private ArrayList<Double[]> weightList;
 
 
     Body(int layersAmount, int biggestLayerNeuronsAmount, String allowedChars, int maxWordLength){
@@ -55,7 +55,7 @@ public class Body {
 
     }
 
-    public void initializeTrainingData(String data, int target){
+    public void initializeTrainingData(String data, Integer[] target){
         trainingDataInput.add(data);
         trainingDataTarget.add(target);
     }
@@ -64,7 +64,7 @@ public class Body {
         double success = 0;
         for (int i = 0; i < trainingIterations; i++) {
             for (int example = 0; example < trainingDataInput.size(); example++) {
-                int target = getTarget(example);
+                Integer[] target = getTarget(example);
                 String inputWord = trainingDataInput.get(example);
                 setInput(inputWord);
                 passForward();
@@ -97,8 +97,8 @@ public class Body {
         return weight;
     }
 
-    private int getTarget(int example){
-        int target = trainingDataTarget.get(example);
+    private Integer[] getTarget(int example){
+        Integer[] target = trainingDataTarget.get(example);
         return target;
     }
 
@@ -131,19 +131,26 @@ public class Body {
         }
     }
 
-    private void backpropagate(double target) {
+    private void backpropagate(Integer[] target) {
         //double cost = calculateCost(target);        //might not be needed
         double stepSize = 0.001;     //0.001 or 0.0005
 
         //Define deltaK
-        double outputK = neuronArray[neuronsInLayer.length - 1][0].getValue();      //makes the variable name shorter
-        double deltaK = outputK * (1 - outputK) * (outputK - target);
+        double[] deltaK = new double[neuronsInLayer[2]];
+        for (int k = 0; k < deltaK.length; k++) {
+            double outputK = neuronArray[2][k].getValue();      //makes the variable name shorter
+            deltaK[k] = outputK * (1 - outputK) * (outputK - target[k]);
+        }
 
         //Define deltaJ
         double[] deltaJ = new double[neuronsInLayer[1]];
-        for (int i = 0; i < deltaJ.length; i++) {
-            double outputJ = neuronArray[1][i].getValue();
-            deltaJ[i] = outputJ * (1 - outputJ) * deltaK * synapseArray[1][i][0].getWeight();
+        for (int j = 0; j < deltaJ.length; j++) {
+            double influence = 0;
+            for (int k = 0; k < deltaK.length; k++) {
+                influence += deltaK[k] * synapseArray[1][j][k].getWeight();
+            }
+            double outputJ = neuronArray[1][j].getValue();
+            deltaJ[j] = outputJ * (1 - outputJ) * influence;
         }
 
         //Loop through each synapse to calculate the derivative
@@ -166,7 +173,7 @@ public class Body {
                     //Output layer
                     if (layer == 1) {
                         double outputJ = neuronArray[layer][firstNeuronPos].getValue();
-                        double derivative = stepSize * deltaK * outputJ;
+                        double derivative = stepSize * deltaK[secondNeuronPos] * outputJ;
                         synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
                     }
                 }
@@ -183,30 +190,46 @@ public class Body {
         }
     }
 
-    private double countSuccess(double target){
+    private double countSuccess(Integer[] target){
         double success = 0;
-        double output = neuronArray[neuronsInLayer.length - 1][0].getValue();
-        if (target - output < 0.5){
-            success = 1;
+        double maxValue = 0;
+        int neuronPos = 0;
+        for (int k = 0; k < neuronsInLayer[2]; k++){
+            double output = neuronArray[2][k].getValue();
+            if (output > maxValue){
+                maxValue = output;
+                neuronPos = k;
+            }
         }
+        if (target[neuronPos] == 1){
+            success++;
+        }
+
         return success;
     }
 
     private void callbackMessage(String word){
-        double output = neuronArray[neuronsInLayer.length - 1][0].getValue();
-        double certainty;
-        String language;
-        if (output > 0.5){
-            certainty = Math.round(output * 1000);
-            certainty /= 10;
-            language = "English";
+        double output[] = new double[neuronsInLayer[2]];
+        for (int k = 0; k < neuronsInLayer[2]; k++){
+            output[k] = neuronArray[2][k].getValue();
         }
-        else {
-            certainty = Math.round((1 - output) * 1000);
-            certainty /= 10;
-            language = "Czech";
+        double[] percentage = calculatePercentage(output);
+
+        System.out.println("Your word is " + word + ". My guess is " + percentage[0] + " % Czech, " + percentage[1] + " % English, " + percentage[2] + " % German.");
+    }
+
+    private double[] calculatePercentage(double[] output){
+        double totalOutput = 0;
+        for (int k = 0; k < output.length; k++){
+            totalOutput += output[k];
         }
 
-        System.out.println("Your word is " + word + ". My guess is " + language + " (" + certainty + " % certain)");
+        for (int k = 0; k < output.length; k++){
+            output[k] /= totalOutput;
+            output[k] = Math.round(output[k] * 1000);
+            output[k] /= 10;
+        }
+
+        return output;
     }
 }
