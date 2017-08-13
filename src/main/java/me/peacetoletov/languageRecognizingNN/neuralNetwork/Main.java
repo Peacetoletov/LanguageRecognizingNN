@@ -1,6 +1,10 @@
+package me.peacetoletov.languageRecognizingNN.neuralNetwork;
+
 /**
  * Created by lukas on 27.7.2017.
  */
+
+import me.peacetoletov.languageRecognizingNN.filesManaging.FileManager;
 
 import java.util.ArrayList;
 
@@ -11,20 +15,40 @@ public class Main {
 
         //Read data
         String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
+        int maxWordLength = 15;
+
         FileManager fm = new FileManager();
         fm.createFilter(allowedChars);
-        int maxWordLength = 15;
-        fm.edit("czechWordsUnedited.txt", "czechWords.txt", maxWordLength);
-        fm.edit("englishWordsUnedited.txt", "englishWords.txt", maxWordLength);
-        fm.edit("germanWordsUnedited.txt", "germanWords.txt", maxWordLength);
-        ArrayList<String> czechWords = fm.readTextFile("czechWords.txt");
-        ArrayList<String> englishWords = fm.readTextFile("englishWords.txt");
-        ArrayList<String> germanWords = fm.readTextFile("germanWords.txt");
+
+        String home = System.getProperty("user.home");
+        String dirName = home + "/LanguageRecognizingNN";
+        String resourcesDirName = dirName + "/resources";
+        String editedDirName = dirName + "/edited";
+        String weightsDirName = dirName + "/weights";
+        fm.createLocalDirectory(dirName, resourcesDirName, editedDirName, weightsDirName);
+
+        String localCzechWordsResourceFile = resourcesDirName + "/czechWordsUnedited.txt";
+        String localCzechWordsEditedFile = editedDirName + "/czechWords.txt";
+        String localEnglishWordsResourceFile = resourcesDirName + "/englishWordsUnedited.txt";
+        String localEnglishWordsEditedFile = editedDirName + "/englishWords.txt";
+        String localGermanWordsResourceFile = resourcesDirName + "/germanWordsUnedited.txt";
+        String localGermanWordsEditedFile = editedDirName + "/germanWords.txt";
+        String localWeightsFile = weightsDirName + "/weights.txt";
+
+
+        fm.createLocalFiles("/czechWordsUnedited.txt", localCzechWordsResourceFile, localCzechWordsEditedFile, maxWordLength, fm);
+        fm.createLocalFiles("/englishWordsUnedited.txt", localEnglishWordsResourceFile, localEnglishWordsEditedFile, maxWordLength, fm);
+        fm.createLocalFiles("/germanWordsUnedited.txt", localGermanWordsResourceFile, localGermanWordsEditedFile, maxWordLength, fm);
+        fm.copyFileFromJarUsingStream("/weights.txt", localWeightsFile);
+
+        ArrayList<String> czechWords = fm.readTextFile(localCzechWordsEditedFile);
+        ArrayList<String> englishWords = fm.readTextFile(localEnglishWordsEditedFile);
+        ArrayList<String> germanWords = fm.readTextFile(localGermanWordsEditedFile);
 
         //Create the body of the NN
         int hiddenLayerSize = 15;
         int inputLayerSize = allowedChars.length() * maxWordLength;
-        Body body = new Body(3, inputLayerSize, allowedChars, maxWordLength);
+        Body body = new Body(3, inputLayerSize, allowedChars, maxWordLength, localWeightsFile);
         body.createNeurons(0, inputLayerSize);
         body.createNeurons(1, hiddenLayerSize);
         body.createNeurons(2, 3);
@@ -45,7 +69,7 @@ public class Main {
         }
 
         //Train
-        //body.train(15000);     //5000 learning iterations so far
+        //body.train(10);     //20000 learning iterations so far
 
         /**
          * 100 - 54 %
@@ -56,7 +80,8 @@ public class Main {
          */
 
         //Guess
-        //celkem 89/103 = 86 %
+        //celkem 104/120 = 86 %
+        /*
         body.guessLanguage("hranolky");
         body.guessLanguage("rottenberg");
         body.guessLanguage("fingers");
@@ -160,7 +185,30 @@ public class Main {
         body.guessLanguage("kniha");
         body.guessLanguage("buch");
         body.guessLanguage("book");
+        body.guessLanguage("blbec");
+        body.guessLanguage("polsko");
+        body.guessLanguage("sea");
+        body.guessLanguage("france");
+        body.guessLanguage("cant");
+        body.guessLanguage("believe");
+        body.guessLanguage("that");
+        body.guessLanguage("when");
+        body.guessLanguage("breathe");
+        body.guessLanguage("there");
+        body.guessLanguage("is");
+        body.guessLanguage("something");
+        body.guessLanguage("good");
+        body.guessLanguage("inside");
+        body.guessLanguage("of");
+        body.guessLanguage("just");
+        body.guessLanguage("one");
+        */
+        //body.guessLanguage("beruška");
 
+
+        for (String word: args){
+            body.guessLanguage(word);
+        }
 
 
         //Calculate total time
@@ -169,4 +217,6 @@ public class Main {
         float seconds = totalTime / 1000;
         System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
     }
+
+
 }

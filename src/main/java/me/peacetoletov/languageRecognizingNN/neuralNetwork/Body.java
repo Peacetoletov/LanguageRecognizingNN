@@ -1,6 +1,10 @@
+package me.peacetoletov.languageRecognizingNN.neuralNetwork;
+
 /**
  * Created by lukas on 29.7.2017.
  */
+
+import me.peacetoletov.languageRecognizingNN.filesManaging.FileManager;
 
 import java.util.ArrayList;
 
@@ -11,20 +15,21 @@ public class Body {
     private ArrayList<String> trainingDataInput = new ArrayList<>();
     private ArrayList<Integer[]> trainingDataTarget = new ArrayList<>();
     private FileManager fm = new FileManager();
-    private String weightsFileName = "weights.txt";
+    private String weightsFile;
     private String allowedChars;
     private int maxWordLength;
     private ArrayList<Double[]> weightList;
 
 
-    Body(int layersAmount, int biggestLayerNeuronsAmount, String allowedChars, int maxWordLength){
+    Body(int layersAmount, int biggestLayerNeuronsAmount, String allowedChars, int maxWordLength, String weightsFile){
         neuronArray = new Neuron[layersAmount][biggestLayerNeuronsAmount];
         synapseArray = new Synapse[layersAmount-1][biggestLayerNeuronsAmount][biggestLayerNeuronsAmount];
         neuronsInLayer = new int[layersAmount];
         this.allowedChars = allowedChars;
         this.maxWordLength = maxWordLength;
-        if (fm.checkIfFileExists(weightsFileName)){
-            weightList = fm.readWeights(weightsFileName);
+        this.weightsFile = weightsFile;
+        if (fm.checkIfFileExists(weightsFile)){
+            weightList = fm.readWeights(weightsFile);
         }
     }
 
@@ -41,14 +46,14 @@ public class Body {
             for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
                 for (int secondNeuronPos = 0; secondNeuronPos < neuronsInLayer[layer+1]; secondNeuronPos++) {      //loop through each neuron in the next layer
                     double synapseWeight;
-                    if (fm.checkIfFileExists(weightsFileName)){
+                    if (fm.checkIfFileExists(weightsFile)){
                         synapseWeight = getSynapseWeight(weightList, layer, firstNeuronPos, secondNeuronPos);
                     } else {
                         synapseWeight = Math.random() - 0.5;        //assigns a number between -0.5 and 0.5
                     }
 
                     synapseArray[layer][firstNeuronPos][secondNeuronPos] = new Synapse(synapseWeight);
-                    //System.out.println("Synapse [" + layer + "][" + firstNeuronPos + "][" + secondNeuronPos + "] has weight " + synapseWeight);
+                    //System.out.println("neuralNetwork.Synapse [" + layer + "][" + firstNeuronPos + "][" + secondNeuronPos + "] has weight " + synapseWeight);
                 }
             }
         }
@@ -75,7 +80,7 @@ public class Body {
                 System.out.println("Iteration " + i + " completed.");
         }
 
-        fm.saveWeights(weightsFileName, synapseArray, neuronsInLayer);
+        fm.saveWeights(weightsFile, synapseArray, neuronsInLayer);
         double successRate = success / (trainingDataInput.size() * trainingIterations);
         System.out.println("Success rate = " + successRate);
     }

@@ -1,3 +1,5 @@
+package me.peacetoletov.languageRecognizingNN.neuralNetwork;
+
 /**
  * Created by lukas on 29.7.2017.
  */

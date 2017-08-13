@@ -1,5 +1,6 @@
+package me.peacetoletov.languageRecognizingNN.filesManaging;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by lukas on 28.7.2017.
@@ -34,7 +35,7 @@ public class Filter {
                     inappropriateWords++;
             }
         }
-        System.out.println("File filtered! " + nonDuplicates + " unique words added, " + duplicates + " duplicates and " + inappropriateWords + " inappropriate words filtered.");
+        //System.out.println("File filtered! " + nonDuplicates + " unique words added, " + duplicates + " duplicates and " + inappropriateWords + " inappropriate words filtered.");
         return filteredWordList;
     }
 
