@@ -5,6 +5,7 @@ package me.peacetoletov.languageRecognizingNN.neuralNetwork;
  */
 
 import me.peacetoletov.languageRecognizingNN.filesManaging.FileManager;
+import me.peacetoletov.languageRecognizingNN.gui.Gui;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,20 @@ public class Main {
         //Check start time
         long startTime = System.currentTimeMillis();
 
+        //Create GUI
+        Gui gui = new Gui("LanguageRecognizingNN");
+
+        //Create the neural network
+        createNN(args);
+
+        //Calculate total time
+        long endTime = System.currentTimeMillis();
+        float totalTime = (float) (endTime - startTime);
+        float seconds = totalTime / 1000;
+        System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
+    }
+
+    private static void createNN(String[] args){
         //Read data
         String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
         int maxWordLength = 15;
@@ -203,20 +218,11 @@ public class Main {
         body.guessLanguage("just");
         body.guessLanguage("one");
         */
-        //body.guessLanguage("beruška");
+        //body.guessLanguage("královna");
 
 
         for (String word: args){
             body.guessLanguage(word);
         }
-
-
-        //Calculate total time
-        long endTime = System.currentTimeMillis();
-        float totalTime = (float) (endTime - startTime);
-        float seconds = totalTime / 1000;
-        System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
     }
-
-
 }
