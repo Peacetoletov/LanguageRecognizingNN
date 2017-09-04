@@ -10,15 +10,20 @@ import me.peacetoletov.languageRecognizingNN.gui.Gui;
 import java.util.ArrayList;
 
 public class Main {
+    private static final int hiddenLayerSize = 15;
+    private static final int maxWordLength = 15;
+    private static final String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
+    private static Body body;
+
     public static void main(String[] args){
         //Check start time
         long startTime = System.currentTimeMillis();
 
-        //Create GUI
-        Gui gui = new Gui("LanguageRecognizingNN");
-
         //Create the neural network
         createNN(args);
+
+        //Create GUI
+        Gui gui = new Gui("LanguageRecognizingNN");
 
         //Calculate total time
         long endTime = System.currentTimeMillis();
@@ -27,11 +32,16 @@ public class Main {
         System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
     }
 
+    public static Body getBody() {
+        return body;
+    }
+
+    public static String getAllowedChars() {
+        return allowedChars;
+    }
+
     private static void createNN(String[] args){
         //Read data
-        String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
-        int maxWordLength = 15;
-
         FileManager fm = new FileManager();
         fm.createFilter(allowedChars);
 
@@ -50,7 +60,6 @@ public class Main {
         String localGermanWordsEditedFile = editedDirName + "/germanWords.txt";
         String localWeightsFile = weightsDirName + "/weights.txt";
 
-
         fm.createLocalFiles("/czechWordsUnedited.txt", localCzechWordsResourceFile, localCzechWordsEditedFile, maxWordLength, fm);
         fm.createLocalFiles("/englishWordsUnedited.txt", localEnglishWordsResourceFile, localEnglishWordsEditedFile, maxWordLength, fm);
         fm.createLocalFiles("/germanWordsUnedited.txt", localGermanWordsResourceFile, localGermanWordsEditedFile, maxWordLength, fm);
@@ -61,9 +70,9 @@ public class Main {
         ArrayList<String> germanWords = fm.readTextFile(localGermanWordsEditedFile);
 
         //Create the body of the NN
-        int hiddenLayerSize = 15;
         int inputLayerSize = allowedChars.length() * maxWordLength;
-        Body body = new Body(3, inputLayerSize, allowedChars, maxWordLength, localWeightsFile);
+        body = new Body(3, inputLayerSize, allowedChars, maxWordLength, localWeightsFile);
+
         body.createNeurons(0, inputLayerSize);
         body.createNeurons(1, hiddenLayerSize);
         body.createNeurons(2, 3);

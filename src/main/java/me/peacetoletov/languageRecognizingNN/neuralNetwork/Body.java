@@ -20,7 +20,6 @@ public class Body {
     private int maxWordLength;
     private ArrayList<Double[]> weightList;
 
-
     Body(int layersAmount, int biggestLayerNeuronsAmount, String allowedChars, int maxWordLength, String weightsFile){
         neuronArray = new Neuron[layersAmount][biggestLayerNeuronsAmount];
         synapseArray = new Synapse[layersAmount-1][biggestLayerNeuronsAmount][biggestLayerNeuronsAmount];
@@ -85,10 +84,10 @@ public class Body {
         System.out.println("Success rate = " + successRate);
     }
 
-    public void guessLanguage(String word){
+    public double[] guessLanguage(String word){
         setInput(word);
         passForward();
-        callbackMessage(word);
+        return calculatePercentage(word);
     }
 
     private double getSynapseWeight(ArrayList<Double[]> weightList, int layer, int firstNeuronPos, int secondNeuronPos){
@@ -213,17 +212,17 @@ public class Body {
         return success;
     }
 
-    private void callbackMessage(String word){
+    private double[] calculatePercentage(String word){
         double output[] = new double[neuronsInLayer[2]];
         for (int k = 0; k < neuronsInLayer[2]; k++){
             output[k] = neuronArray[2][k].getValue();
         }
-        double[] percentage = calculatePercentage(output);
+        double[] percentageGuess = recalculateOutputs(output);
 
-        System.out.println("Your word is " + word + ". My guess is " + percentage[0] + " % Czech, " + percentage[1] + " % English, " + percentage[2] + " % German.");
+        return percentageGuess;
     }
 
-    private double[] calculatePercentage(double[] output){
+    private double[] recalculateOutputs(double[] output){
         double totalOutput = 0;
         for (int k = 0; k < output.length; k++){
             totalOutput += output[k];
