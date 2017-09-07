@@ -19,15 +19,18 @@ public class Body {
     private String allowedChars;
     private int maxWordLength;
     private ArrayList<Double[]> weightList;
+    private boolean createRandomWeights;
 
-    Body(int layersAmount, int biggestLayerNeuronsAmount, String allowedChars, int maxWordLength, String weightsFile){
+    Body(int layersAmount, int biggestLayerNeuronsAmount, String allowedChars, int maxWordLength, boolean createRandomWeights, String weightsFile){
         neuronArray = new Neuron[layersAmount][biggestLayerNeuronsAmount];
         synapseArray = new Synapse[layersAmount-1][biggestLayerNeuronsAmount][biggestLayerNeuronsAmount];
         neuronsInLayer = new int[layersAmount];
         this.allowedChars = allowedChars;
         this.maxWordLength = maxWordLength;
         this.weightsFile = weightsFile;
-        if (fm.checkIfFileExists(weightsFile)){
+        this.createRandomWeights = createRandomWeights;
+
+        if (fm.checkIfFileExists(weightsFile) && !createRandomWeights){
             weightList = fm.readWeights(weightsFile);
         }
     }
@@ -45,7 +48,7 @@ public class Body {
             for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
                 for (int secondNeuronPos = 0; secondNeuronPos < neuronsInLayer[layer+1]; secondNeuronPos++) {      //loop through each neuron in the next layer
                     double synapseWeight;
-                    if (fm.checkIfFileExists(weightsFile)){
+                    if (fm.checkIfFileExists(weightsFile) && !createRandomWeights){
                         synapseWeight = getSynapseWeight(weightList, layer, firstNeuronPos, secondNeuronPos);
                     } else {
                         synapseWeight = Math.random() - 0.5;        //assigns a number between -0.5 and 0.5
@@ -64,8 +67,9 @@ public class Body {
         trainingDataTarget.add(target);
     }
 
-    public void train(int trainingIterations){
+    public void train(){
         double success = 0;
+        /*
         for (int i = 0; i < trainingIterations; i++) {
             for (int example = 0; example < trainingDataInput.size(); example++) {
                 Integer[] target = getTarget(example);
@@ -78,10 +82,36 @@ public class Body {
             if (i % 10 == 0)
                 System.out.println("Iteration " + i + " completed.");
         }
-
-        fm.saveWeights(weightsFile, synapseArray, neuronsInLayer);
-        double successRate = success / (trainingDataInput.size() * trainingIterations);
+        saveWeights();
+        double successRate = success / (trainingDataInput.size() * i);
         System.out.println("Success rate = " + successRate);
+
+        */
+        System.out.println("Starting learning iterations. Traning data size = " + trainingDataInput.size());
+        int i = 1;
+        while (true) {
+            for (int example = 0; example < trainingDataInput.size(); example++) {
+                Integer[] target = getTarget(example);
+                String inputWord = trainingDataInput.get(example);
+                setInput(inputWord);
+                passForward();
+                success += countSuccess(target);
+                backpropagate(target);
+            }
+
+            if (i % 10 == 0) {
+                double successRate = success / (trainingDataInput.size() * i);
+                System.out.println("Iteration " + i + " completed. Success rate = " + successRate);
+                saveWeights();
+            }
+
+            System.out.println(i);
+            i++;
+        }
+    }
+
+    public void saveWeights() {
+        fm.saveWeights(weightsFile, synapseArray, neuronsInLayer);
     }
 
     public double[] guessLanguage(String word){

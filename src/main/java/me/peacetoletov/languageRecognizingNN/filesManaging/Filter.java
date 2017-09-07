@@ -35,7 +35,7 @@ public class Filter {
                     inappropriateWords++;
             }
         }
-        //System.out.println("File filtered! " + nonDuplicates + " unique words added, " + duplicates + " duplicates and " + inappropriateWords + " inappropriate words filtered.");
+        System.out.println("File filtered! " + nonDuplicates + " unique words added, " + duplicates + " duplicates and " + inappropriateWords + " inappropriate words filtered.");
         return filteredWordList;
     }
 

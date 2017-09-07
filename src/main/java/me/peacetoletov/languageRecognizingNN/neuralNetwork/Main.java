@@ -10,9 +10,16 @@ import me.peacetoletov.languageRecognizingNN.gui.Gui;
 import java.util.ArrayList;
 
 public class Main {
+    //Variables for controlling the program
+    private static final boolean createRandomWeights = false;
+    private static final boolean train = false;
+
+    //Variables for creating body of the NN
     private static final int hiddenLayerSize = 15;
+    private static final int hiddenLayersAmount = 1;
     private static final int maxWordLength = 15;
     private static final String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
+
     private static Body body;
 
     public static void main(String[] args){
@@ -29,6 +36,7 @@ public class Main {
         long endTime = System.currentTimeMillis();
         float totalTime = (float) (endTime - startTime);
         float seconds = totalTime / 1000;
+        FileManager fm = new FileManager();
         System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
     }
 
@@ -63,7 +71,6 @@ public class Main {
         fm.createLocalFiles("/czechWordsUnedited.txt", localCzechWordsResourceFile, localCzechWordsEditedFile, maxWordLength, fm);
         fm.createLocalFiles("/englishWordsUnedited.txt", localEnglishWordsResourceFile, localEnglishWordsEditedFile, maxWordLength, fm);
         fm.createLocalFiles("/germanWordsUnedited.txt", localGermanWordsResourceFile, localGermanWordsEditedFile, maxWordLength, fm);
-        fm.copyFileFromJarUsingStream("/weights.txt", localWeightsFile);
 
         ArrayList<String> czechWords = fm.readTextFile(localCzechWordsEditedFile);
         ArrayList<String> englishWords = fm.readTextFile(localEnglishWordsEditedFile);
@@ -71,12 +78,21 @@ public class Main {
 
         //Create the body of the NN
         int inputLayerSize = allowedChars.length() * maxWordLength;
-        body = new Body(3, inputLayerSize, allowedChars, maxWordLength, localWeightsFile);
+        int layersAmount = 2 + hiddenLayersAmount;
+        int outputLayerSize = 3;
 
-        body.createNeurons(0, inputLayerSize);
-        body.createNeurons(1, hiddenLayerSize);
-        body.createNeurons(2, 3);
-        body.createSynapses();
+        if (createRandomWeights) {
+            body = new Body(layersAmount, inputLayerSize, allowedChars, maxWordLength, createRandomWeights, localWeightsFile);
+            createBodyElements(inputLayerSize, hiddenLayerSize, outputLayerSize);
+            body.saveWeights();
+        } else {
+            if (!fm.checkIfFileExists(localWeightsFile)){
+                fm.copyFileFromJarUsingStream("/weights.txt", localWeightsFile);
+            }
+            body = new Body(layersAmount, inputLayerSize, allowedChars, maxWordLength, createRandomWeights, localWeightsFile);
+            createBodyElements(inputLayerSize, hiddenLayerSize, outputLayerSize);
+        }
+
 
         //Initialize training data
         Integer[] czechTarget = {1, 0, 0};
@@ -92,8 +108,10 @@ public class Main {
             body.initializeTrainingData(z, germanTarget);
         }
 
+
         //Train
-        //body.train(10);     //20000 learning iterations so far
+        if (train)
+            body.train();
 
         /**
          * 100 - 54 %
@@ -104,7 +122,8 @@ public class Main {
          */
 
         //Guess
-        //celkem 104/120 = 86 %
+        //celkem 104/120 = 86.6 %     //stará verze - 2000 slov, 20000 iterací
+        //celkem 102/120 = 85.0 %     //nová verze - 5000 slov, 15000 iterací
         /*
         body.guessLanguage("hranolky");
         body.guessLanguage("rottenberg");
@@ -230,8 +249,17 @@ public class Main {
         //body.guessLanguage("královna");
 
 
+        /*
         for (String word: args){
             body.guessLanguage(word);
         }
+        */
+    }
+
+    private static void createBodyElements(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
+        body.createNeurons(0, inputLayerSize);
+        body.createNeurons(1, hiddenLayerSize);
+        body.createNeurons(2, outputLayerSize);
+        body.createSynapses();
     }
 }
