@@ -9,14 +9,19 @@ import me.peacetoletov.languageRecognizingNN.gui.Gui;
 
 import java.util.ArrayList;
 
+/**
+ * Vytvořil jsem více hidden layerů.
+ * Forward propagation funguje správně.
+ * Zbývá přepsat backpropagation.
+ */
+
 public class Main {
     //Variables for controlling the program
-    private static final boolean createRandomWeights = false;
-    private static final boolean train = false;
+    private static final boolean createRandomWeights = true;
+    private static final boolean train = true;
 
     //Variables for creating body of the NN
-    private static final int hiddenLayerSize = 15;
-    private static final int hiddenLayersAmount = 1;
+    private static final int[] hiddenLayersSize = {15};
     private static final int maxWordLength = 15;
     private static final String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
 
@@ -78,19 +83,19 @@ public class Main {
 
         //Create the body of the NN
         int inputLayerSize = allowedChars.length() * maxWordLength;
-        int layersAmount = 2 + hiddenLayersAmount;
+        int layersAmount = 2 + hiddenLayersSize.length;
         int outputLayerSize = 3;
 
         if (createRandomWeights) {
             body = new Body(layersAmount, inputLayerSize, allowedChars, maxWordLength, createRandomWeights, localWeightsFile);
-            createBodyElements(inputLayerSize, hiddenLayerSize, outputLayerSize);
+            createBodyElements(inputLayerSize, hiddenLayersSize, outputLayerSize);
             body.saveWeights();
         } else {
             if (!fm.checkIfFileExists(localWeightsFile)){
                 fm.copyFileFromJarUsingStream("/weights.txt", localWeightsFile);
             }
             body = new Body(layersAmount, inputLayerSize, allowedChars, maxWordLength, createRandomWeights, localWeightsFile);
-            createBodyElements(inputLayerSize, hiddenLayerSize, outputLayerSize);
+            createBodyElements(inputLayerSize, hiddenLayersSize, outputLayerSize);
         }
 
 
@@ -256,10 +261,12 @@ public class Main {
         */
     }
 
-    private static void createBodyElements(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
+    private static void createBodyElements(int inputLayerSize, int[] hiddenLayerSize, int outputLayerSize) {
         body.createNeurons(0, inputLayerSize);
-        body.createNeurons(1, hiddenLayerSize);
-        body.createNeurons(2, outputLayerSize);
+        for (int i = 0; i < hiddenLayersSize.length; i++) {
+            body.createNeurons(i+1, hiddenLayerSize[i]);
+        }
+        body.createNeurons(hiddenLayersSize.length + 1, outputLayerSize);
         body.createSynapses();
     }
 }
