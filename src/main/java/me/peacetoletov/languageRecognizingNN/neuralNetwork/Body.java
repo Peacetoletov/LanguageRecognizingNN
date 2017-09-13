@@ -55,7 +55,7 @@ public class Body {
                     }
 
                     synapseArray[layer][firstNeuronPos][secondNeuronPos] = new Synapse(synapseWeight);
-                    System.out.println("Synapse [" + layer + "][" + firstNeuronPos + "][" + secondNeuronPos + "] has weight " + synapseWeight);
+                    //System.out.println("Synapse [" + layer + "][" + firstNeuronPos + "][" + secondNeuronPos + "] has weight " + synapseWeight);
                 }
             }
         }
@@ -96,10 +96,17 @@ public class Body {
                 setInput(inputWord);
                 passForward();
                 success += countSuccess(target);
-                backpropagate(target);
+
+                if (i >= 3){
+                    //testing
+                    backpropagate(target);
+                }
+
+                System.out.println("example = " + example);
             }
 
-            if (i % 10 == 0) {
+
+            if (i % 1 == 0) {   //10 replaced by 1 temporarily
                 double successRate = success / (trainingDataInput.size() * i);
                 System.out.println("Iteration " + i + " completed. Success rate = " + successRate);
                 saveWeights();
@@ -167,15 +174,17 @@ public class Body {
 
     private void backpropagate(Integer[] target) {
         //double cost = calculateCost(target);        //might not be needed
-        double stepSize = 0.001;     //0.001 or 0.0005
+        double stepSize = 0.1;     //0.001 or 0.0005      //changed to a lower value for faster testing
+
 
         //Define deltaK
-        double[] deltaK = new double[neuronsInLayer[2]];
+        double[] deltaK = new double[neuronsInLayer[4]];
         for (int k = 0; k < deltaK.length; k++) {
-            double outputK = neuronArray[2][k].getValue();      //makes the variable name shorter
+            double outputK = neuronArray[4][k].getValue();      //makes the variable name shorter
             deltaK[k] = outputK * (1 - outputK) * (outputK - target[k]);
         }
 
+        /*
         //Define deltaJ
         double[] deltaJ = new double[neuronsInLayer[1]];
         for (int j = 0; j < deltaJ.length; j++) {
@@ -186,14 +195,18 @@ public class Body {
             double outputJ = neuronArray[1][j].getValue();
             deltaJ[j] = outputJ * (1 - outputJ) * influence;
         }
+        */
 
         //Loop through each synapse to calculate the derivative
+
         int layersAmount = neuronsInLayer.length;
         for (int layer = 0; layer < layersAmount - 1; layer++) {   //loop through each neuron layer except the output layer
             for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
                 for (int secondNeuronPos = 0; secondNeuronPos < neuronsInLayer[layer + 1]; secondNeuronPos++) {      //loop through each neuron in the next layer
+
                     double derivative = 0;
 
+                    /*
                     //Hidden layer
                     if (layer == 0) {
                         double outputI = neuronArray[layer][firstNeuronPos].getValue();
@@ -201,16 +214,48 @@ public class Body {
                     }
 
                     //Output layer
-                    if (layer == 1) {
+                    if (layer == 3) {
                         double outputJ = neuronArray[layer][firstNeuronPos].getValue();
                         derivative = stepSize * deltaK[secondNeuronPos] * outputJ;
+                        //System.out.println("Correct derivative = " + derivative);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].updateWeight();
+                    }
+                    */
+
+
+                    if (layer == 3) {
+                        derivative = calculateDerivative(layer, firstNeuronPos, secondNeuronPos, target, stepSize);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].updateWeight();
                     }
 
-                    synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
+
+
+                    if (layer == 2) {
+                        derivative = calculateDerivative(layer, firstNeuronPos, secondNeuronPos, target, stepSize);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].updateWeight();
+                    }
+
+
+                    if (layer == 1) {
+                        derivative = calculateDerivative(layer, firstNeuronPos, secondNeuronPos, target, stepSize);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].updateWeight();
+                    }
+
+                    if (layer == 0) {
+                        derivative = calculateDerivative(layer, firstNeuronPos, secondNeuronPos, target, stepSize);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].setDerivative(derivative);
+                        synapseArray[layer][firstNeuronPos][secondNeuronPos].updateWeight();
+                    }
+                    //System.out.println("Iteration " + layer + "." + firstNeuronPos + "." + secondNeuronPos + " completed.");
                 }
             }
         }
 
+        /*
         //Loop through each synapse to update weights
         for (int layer = 0; layer < layersAmount - 1; layer++) {   //loop through each neuron layer except the output layer
             for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
@@ -219,6 +264,83 @@ public class Body {
                 }
             }
         }
+        */
+    }
+
+    private double calculateDerivative(int layer, int firstNeuronPos, int secondNeuronPos, Integer[] target, double stepSize) {
+        double derivative = 0;
+        double outputD;
+        double outputC;
+        double outputB;
+        double outputA;
+        double sumE;
+        double sumD;
+        double sumC;
+        switch(layer) {
+            case 3:
+                outputD = neuronArray[3][firstNeuronPos].getValue();
+                derivative = stepSize * outputD * outputDerived(secondNeuronPos, target);
+                break;
+
+            case 2:
+                outputC = neuronArray[2][firstNeuronPos].getValue();
+                outputD = neuronArray[3][secondNeuronPos].getValue();
+                sumE = 0;
+                for (int e = 0; e < neuronsInLayer[4]; e++) {
+                    sumE += outputDerived(e, target) * synapseArray[3][secondNeuronPos][e].getWeight();
+                }
+                derivative = stepSize * outputC * outputD * (1 - outputD) * sumE;
+                break;
+
+            case 1:
+                outputB = neuronArray[1][firstNeuronPos].getValue();
+                outputC = neuronArray[2][secondNeuronPos].getValue();
+                sumE = 0;
+                for (int e = 0; e < neuronsInLayer[4]; e++) {
+                    sumD = 0;
+                    for (int d = 0; d < neuronsInLayer[3]; d++) {
+                        sumD += layerXDerived(3, d, e) * synapseArray[2][secondNeuronPos][d].getWeight();
+                    }
+                    sumE += outputDerived(e, target) * sumD;
+                }
+                derivative = stepSize * outputB * outputC * (1 - outputC) * sumE;
+                break;
+
+            case 0:
+                /**
+                 * Možná tohle funguje, ale je to pomalý jak prase, takže nefunguje.
+                 * Potřeba optimalizovat. Hodně.
+                 */
+                outputA = neuronArray[0][firstNeuronPos].getValue();
+                outputB = neuronArray[1][secondNeuronPos].getValue();
+                sumE = 0;
+                for (int e = 0; e < neuronsInLayer[4]; e++) {
+                    sumD = 0;
+                    for (int d = 0; d < neuronsInLayer[3]; d++) {
+                        sumC = 0;
+                        for (int c = 0; c < neuronsInLayer[2]; c++) {
+                            sumC += layerXDerived(2, c, d) * synapseArray[1][secondNeuronPos][c].getWeight();
+                        }
+                        sumD += layerXDerived(3, d, e) * sumC;
+                    }
+                    sumE += outputDerived(e, target) * sumD;
+                }
+                derivative = stepSize * outputA * outputB * (1 - outputB) * sumE;
+                break;
+        }
+        return derivative;
+    }
+
+    private double outputDerived(int neuronPos, Integer[] target) {
+        double outputE = neuronArray[4][neuronPos].getValue();
+        double derivative = (outputE - target[neuronPos]) * outputE * (1 - outputE);
+        return derivative;
+    }
+
+    private double layerXDerived(int layer, int firstNeuronPos, int secondNeuronPos) {
+        double outputD = neuronArray[layer][firstNeuronPos].getValue();
+        double derivative = synapseArray[layer][firstNeuronPos][secondNeuronPos].getWeight() * outputD * (1 - outputD);
+        return derivative;
     }
 
     private double countSuccess(Integer[] target){

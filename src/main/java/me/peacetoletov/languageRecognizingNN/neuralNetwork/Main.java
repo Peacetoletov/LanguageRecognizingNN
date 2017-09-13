@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 public class Main {
     //Variables for controlling the program
-    private static final boolean createRandomWeights = false;
-    private static final boolean train = false;
+    private static final boolean createRandomWeights = true;
+    private static final boolean train = true;
 
     //Variables for creating body of the NN
     private static final int[] hiddenLayersSize = {15, 15, 15};
