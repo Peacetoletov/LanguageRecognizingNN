@@ -13,15 +13,16 @@ import java.util.ArrayList;
  * Vytvořil jsem více hidden layerů.
  * Forward propagation funguje správně.
  * Zbývá přepsat backpropagation.
+ * Fuck multi hidden layer backpropagation.
  */
 
 public class Main {
     //Variables for controlling the program
-    private static final boolean createRandomWeights = true;
-    private static final boolean train = true;
+    private static final boolean createRandomWeights = false;
+    private static final boolean train = false;
 
     //Variables for creating body of the NN
-    private static final int[] hiddenLayersSize = {15};
+    private static final int[] hiddenLayersSize = {15, 15, 15};
     private static final int maxWordLength = 15;
     private static final String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
 
@@ -41,7 +42,7 @@ public class Main {
         long endTime = System.currentTimeMillis();
         float totalTime = (float) (endTime - startTime);
         float seconds = totalTime / 1000;
-        FileManager fm = new FileManager();
+        //FileManager fm = new FileManager(); //proč to zde bylo?
         System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
     }
 
