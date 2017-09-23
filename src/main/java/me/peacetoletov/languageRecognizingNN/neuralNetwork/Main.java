@@ -9,15 +9,11 @@ import me.peacetoletov.languageRecognizingNN.gui.Gui;
 
 import java.util.ArrayList;
 
-/**
- * Vytvořil jsem více hidden layerů.
- * Forward propagation funguje správně.
- * Zbývá přepsat backpropagation.
- * Fuck multi hidden layer backpropagation.
- */
-
 public class Main {
     //Variables for controlling the program
+    /**
+     * PROČ SE TO NEDOKÁŽE ULOŽIT / NAČÍST?!?!
+     */
     private static final boolean createRandomWeights = true;
     private static final boolean train = true;
 
