@@ -14,11 +14,11 @@ public class Main {
     /**
      * PROČ SE TO NEDOKÁŽE ULOŽIT / NAČÍST?!?!
      */
-    private static final boolean createRandomWeights = true;
+    private static final boolean createRandomWeights = false;
     private static final boolean train = true;
 
     //Variables for creating body of the NN
-    private static final int[] hiddenLayersSize = {15, 15, 15};
+    private static final int[] hiddenLayersSize = {15};
     private static final int maxWordLength = 15;
     private static final String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
 
