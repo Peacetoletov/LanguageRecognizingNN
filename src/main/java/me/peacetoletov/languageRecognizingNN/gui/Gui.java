@@ -8,14 +8,14 @@ import javax.swing.*;
 
 public class Gui extends JFrame {
 
-    public Gui(String title) {
+    public Gui(String title, int layersAmount, int maxWordLength, int hiddenLayerSize, int outputLayerSize, String allowedChars) {
         super(title);
-        add(new Display());
-        setWindowProperties();  //ZASRANÁ JAVA, ZASRANEJ SWING
+        add(new Display(layersAmount, maxWordLength, hiddenLayerSize, outputLayerSize, allowedChars));
+        setWindowProperties();
     }
 
     private void setWindowProperties(){
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         setSize(1280, 720);
         setResizable(false);

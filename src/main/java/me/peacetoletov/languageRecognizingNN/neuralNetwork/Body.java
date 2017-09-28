@@ -17,6 +17,7 @@ public class Body {
     private FileManager fm = new FileManager();
     private String weightsFile;
     private String allowedChars;
+    private String inputWord;
     private int maxWordLength;
     private ArrayList<Double[]> weightList;
     private boolean createRandomWeights;
@@ -108,6 +109,18 @@ public class Body {
         return calculatePercentage(word);
     }
 
+    public Neuron[][] getNeuronArray() {
+        return neuronArray;
+    }
+
+    public Synapse[][][] getSynapseArray() {
+        return synapseArray;
+    }
+
+    public String getInputWord() {
+        return inputWord;
+    }
+
     private double getSynapseWeight(ArrayList<Double[]> weightList, int layer, int firstNeuronPos, int secondNeuronPos){
         double weight = 0;
         for (int i = 0; i < weightList.size(); i++){
@@ -125,7 +138,7 @@ public class Body {
     }
 
     private void setInput(String inputWord){
-        //String inputData = trainingDataInput.get(example);
+        this.inputWord = inputWord;
         for (int i = 0; i < maxWordLength; i++){        //Loop through "big" neurons
             for (int j = 0; j < allowedChars.length(); j++){        //Loop through "small" neurons
                 if (inputWord.length() > i && inputWord.charAt(i) == allowedChars.charAt(j)){

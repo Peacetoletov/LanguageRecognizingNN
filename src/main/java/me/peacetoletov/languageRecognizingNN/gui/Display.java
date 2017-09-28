@@ -16,11 +16,13 @@ public class Display extends JPanel {
     private JTextField tfWord;
 
     private Graph graph;
+    private Diagram diagram;
 
-    private String wordToGuess = "nemocnice";
+    private String wordToGuess = "fracture";
 
-    public Display() {
+    public Display(int layersAmount, int maxWordLength, int hiddenLayerSize, int outputLayerSize, String allowedChars) {
         graph = new Graph();
+        diagram = new Diagram(layersAmount, maxWordLength, hiddenLayerSize, outputLayerSize, allowedChars);
         setLayout(null);
         addComponents();
         graph.update(wordToGuess);
@@ -53,23 +55,15 @@ public class Display extends JPanel {
         add(graph.labCzechPercentage);
         add(graph.labEnglishPercentage);
         add(graph.labGermanPercentage);
-
-        /*
-        labGuessingWord = new JLabel("Guessing: " + wordToGuess);
-        labGuessingWord.setBounds(100, 200, 200, 30);
-        labGuessingWord.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(labGuessingWord);
-        */
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         setBackground(new Color(200, 255, 255));
-
-        //g.setColor(Color.BLUE);
-        //g.fillRect(0, 0, 100, 100);
+        //setBackground(new Color(0, 160, 255));
 
         //Graph
+        //Toto můžu předělat podobně, jako to je u diagramu - funkce graph.draw(g)
         g.setColor(Color.black);
         g.drawLine(graph.getAxisX1(), graph.getAxisY1(), graph.getAxisX1(), graph.getAxisY2());       //vertical line      //x1, y1, x2, y2
         g.drawLine(graph.getAxisX1(), graph.getAxisY1(), graph.getAxisX2(), graph.getAxisY1());       //horizontal line
@@ -81,7 +75,11 @@ public class Display extends JPanel {
         g.setColor(new Color(255, 0, 0));
         g.fillRect(graph.getColumnX1(2), graph.getColumnY1(2), graph.getColumnWidth(), graph.getColumnHeight(2));       //x, y, width, height
 
-        // ^Houstone, máme problém
+        // ^ Houstone, máme problém
+        //Edit po měsíci(?): ^ kde sakra?
+
+        //Neural network diagram
+        diagram.draw(g);
     }
 
     private class Event implements ActionListener {

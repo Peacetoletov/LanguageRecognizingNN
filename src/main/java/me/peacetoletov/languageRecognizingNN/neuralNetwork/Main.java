@@ -11,15 +11,14 @@ import java.util.ArrayList;
 
 public class Main {
     //Variables for controlling the program
-    /**
-     * PROČ SE TO NEDOKÁŽE ULOŽIT / NAČÍST?!?!
-     */
     private static final boolean createRandomWeights = false;
-    private static final boolean train = true;
+    private static final boolean train = false;
 
     //Variables for creating body of the NN
-    private static final int[] hiddenLayersSize = {15};
+    private static final int hiddenLayerSize = 15;
     private static final int maxWordLength = 15;
+    private static final int layersAmount = 3;
+    private static final int outputLayerSize = 3;
     private static final String allowedChars = "abcdefghijklmnopqrstuvwxyzáčďéěíňóřšťúůýžäöüß";
 
     private static Body body;
@@ -29,16 +28,15 @@ public class Main {
         long startTime = System.currentTimeMillis();
 
         //Create the neural network
-        createNN(args);
+        createNN();
 
         //Create GUI
-        Gui gui = new Gui("LanguageRecognizingNN");
+        Gui gui = new Gui("LanguageRecognizingNN", layersAmount, maxWordLength, hiddenLayerSize, outputLayerSize, allowedChars);
 
         //Calculate total time
         long endTime = System.currentTimeMillis();
         float totalTime = (float) (endTime - startTime);
         float seconds = totalTime / 1000;
-        //FileManager fm = new FileManager(); //proč to zde bylo?
         System.out.println("The neural network needed a total of " + seconds + " seconds to execute all actions.");
     }
 
@@ -50,7 +48,7 @@ public class Main {
         return allowedChars;
     }
 
-    private static void createNN(String[] args){
+    private static void createNN(){
         //Read data
         FileManager fm = new FileManager();
         fm.createFilter(allowedChars);
@@ -80,19 +78,17 @@ public class Main {
 
         //Create the body of the NN
         int inputLayerSize = allowedChars.length() * maxWordLength;
-        int layersAmount = 2 + hiddenLayersSize.length;
-        int outputLayerSize = 3;
 
         if (createRandomWeights) {
             body = new Body(layersAmount, inputLayerSize, allowedChars, maxWordLength, createRandomWeights, localWeightsFile);
-            createBodyElements(inputLayerSize, hiddenLayersSize, outputLayerSize);
+            createBodyElements(inputLayerSize, hiddenLayerSize, outputLayerSize);
             body.saveWeights();
         } else {
             if (!fm.checkIfFileExists(localWeightsFile)){
                 fm.copyFileFromJarUsingStream("/weights.txt", localWeightsFile);
             }
             body = new Body(layersAmount, inputLayerSize, allowedChars, maxWordLength, createRandomWeights, localWeightsFile);
-            createBodyElements(inputLayerSize, hiddenLayersSize, outputLayerSize);
+            createBodyElements(inputLayerSize, hiddenLayerSize, outputLayerSize);
         }
 
 
@@ -116,6 +112,7 @@ public class Main {
             body.train();
 
         /**
+         * Training data size: 2000 word per language
          * 100 - 54 %
          * 1000 - 80 %
          * 2000 - 86 %
@@ -258,12 +255,10 @@ public class Main {
         */
     }
 
-    private static void createBodyElements(int inputLayerSize, int[] hiddenLayerSize, int outputLayerSize) {
+    private static void createBodyElements(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
         body.createNeurons(0, inputLayerSize);
-        for (int i = 0; i < hiddenLayersSize.length; i++) {
-            body.createNeurons(i+1, hiddenLayerSize[i]);
-        }
-        body.createNeurons(hiddenLayersSize.length + 1, outputLayerSize);
+        body.createNeurons(1, hiddenLayerSize);
+        body.createNeurons(2, outputLayerSize);
         body.createSynapses();
     }
 }
