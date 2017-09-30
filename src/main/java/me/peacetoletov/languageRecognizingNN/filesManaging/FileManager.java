@@ -142,20 +142,6 @@ public class FileManager {
         filter = new Filter(allowedChars);
     }
 
-    private String getResourceAsString(String path) {
-        InputStream stream = FileManager.class.getResourceAsStream(path);
-
-        if (stream == null) {
-            throw new IllegalArgumentException(String.format("No resource found at '%s'!", path));
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void write(String path, ArrayList<String> wordList) {
         try {
             File file = new File(path);

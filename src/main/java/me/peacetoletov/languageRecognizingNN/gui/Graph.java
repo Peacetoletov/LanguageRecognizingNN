@@ -47,6 +47,20 @@ public class Graph {
         labGermanPercentage.setFont(new Font("Arial", Font.PLAIN, fontSize));
     }
 
+    public void draw(Graphics g) {
+        g.setColor(Color.black);
+        g.drawLine(getAxisX1(), getAxisY1(), getAxisX1(), getAxisY2());       //vertical line      //x1, y1, x2, y2
+        g.drawLine(getAxisX1(), getAxisY1(), getAxisX2(), getAxisY1());       //horizontal line
+
+        g.setColor(new Color(0, 255, 0));
+        g.fillRect(getColumnX1(0), getColumnY1(0), getColumnWidth(), getColumnHeight(0));       //x, y, width, height
+        g.setColor(new Color(0, 0, 255));
+        g.fillRect(getColumnX1(1), getColumnY1(1), getColumnWidth(), getColumnHeight(1));       //x, y, width, height
+        g.setColor(new Color(255, 0, 0));
+        g.fillRect(getColumnX1(2), getColumnY1(2), getColumnWidth(), getColumnHeight(2));       //x, y, width, height
+
+    }
+
     public void update(String word) {
         labGuessingWord.setText("Guessing: " + word);
         double[] percentageGuess = Main.getBody().guessLanguage(word);
@@ -60,35 +74,35 @@ public class Graph {
         System.out.println("Your word is " + word + ". My guess is " + percentageGuess[0] + " % Czech, " + percentageGuess[1] + " % English, " + percentageGuess[2] + " % German.");
     }
 
-    public int getAxisX1() {
+    private int getAxisX1() {
         return axisX1;
     }
 
-    public int getAxisY1() {
+    private int getAxisY1() {
         return axisY1;
     }
 
-    public int getAxisX2() {
+    private int getAxisX2() {
         return axisX1 + axisWidth;
     }
 
-    public int getAxisY2() {
+    private int getAxisY2() {
         return axisY1 - axisHeight;
     }
 
-    public int getColumnX1(int column) {
+    private int getColumnX1(int column) {
         return axisX1 + spaceBetweenColumns + column * (spaceBetweenColumns + columnWidth);
     }
 
-    public int getColumnY1(int column) {
+    private int getColumnY1(int column) {
         return axisY1 - getColumnHeight(column);
     }
 
-    public int getColumnWidth() {
+    private int getColumnWidth() {
         return columnWidth;
     }
 
-    public int getColumnHeight(int column) {
+    private int getColumnHeight(int column) {
         double percentage = getPercentage(column);
         return (int) Math.round(percentage * columnMaxSize / 100);
     }
