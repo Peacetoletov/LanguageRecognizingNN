@@ -73,7 +73,7 @@ public class Diagram {
         if (layer == 0) {
             for (int bigInputNeuron = 0; bigInputNeuron < maxWordLength; bigInputNeuron++) {
                 for (int secondNeuronPos = 0; secondNeuronPos < neuronsInLayer[layer+1]; secondNeuronPos++) {
-                    double value = avgWeights[bigInputNeuron][secondNeuronPos];
+                    double value = getFirstLayerWeight(bigInputNeuron, secondNeuronPos, synapseArray, avgWeights);
                     if (value < minValue) {
                         minValue = value;
                     }
@@ -96,10 +96,32 @@ public class Diagram {
                 }
             }
         }
-        //System.out.println("Layer " + layer + ": minValue = " + minValue + "; maxValue = " + maxValue);
 
         edgeWeightValues[layer][0] = minValue;
         edgeWeightValues[layer][1] = maxValue;
+    }
+
+    private double getFirstLayerWeight(int firstNeuronPos, int secondNeuronPos, Synapse[][][] synapseArray, double[][] avgWeights) {
+        double value;
+        //If the big input neuron contains a letter, it will show color of all synapses from that small input neuron instead of the average of all small neurons
+        String inputWord = Main.getBody().getInputWord();
+        Neuron[][] neuronArray = Main.getBody().getNeuronArray();
+        if (firstNeuronPos < inputWord.length()) {
+            //Assign the correct value
+            value = 0;
+            for (int smallInputNeuron = 0; smallInputNeuron < allowedChars.length(); smallInputNeuron++) {
+                int smallNeuronPos = firstNeuronPos * allowedChars.length() + smallInputNeuron;
+                int input = (int) neuronArray[0][smallNeuronPos].getValue();
+                if (input == 1) {
+                    value = synapseArray[0][smallNeuronPos][secondNeuronPos].getWeight();
+                }
+            }
+
+        } else {
+            value = avgWeights[firstNeuronPos][secondNeuronPos];
+        }
+
+        return value;
     }
 
     private double[][] getFirstLayerAverageWeights(int[] neuronsInLayer, Synapse[][][] synapseArray) {
@@ -185,7 +207,7 @@ public class Diagram {
     private Color chooseSynapseColor(int layer, int firstNeuronPos, int secondNeuronPos, double[][] edgeWeightValues, Synapse[][][] synapseArray, double[][] avgWeights) {
         double value;
         if (layer == 0) {
-            value = avgWeights[firstNeuronPos][secondNeuronPos];
+            value = getFirstLayerWeight(firstNeuronPos, secondNeuronPos, synapseArray, avgWeights);
         } else {
             value = synapseArray[layer][firstNeuronPos][secondNeuronPos].getWeight();
         }
