@@ -106,7 +106,7 @@ public class Body {
     public double[] guessLanguage(String word){
         setInput(word);
         passForward();
-        return calculatePercentage(word);
+        return calculatePercentage();
     }
 
     public Neuron[][] getNeuronArray() {
@@ -188,7 +188,6 @@ public class Body {
         }
 
         //Loop through each synapse to calculate the derivative
-
         int layersAmount = neuronsInLayer.length;
         for (int layer = 0; layer < layersAmount - 1; layer++) {   //loop through each neuron layer except the output layer
             for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
@@ -213,17 +212,6 @@ public class Body {
             }
         }
 
-
-        //Loop through each synapse to update weights
-        /*
-        for (int layer = 0; layer < layersAmount - 1; layer++) {   //loop through each neuron layer except the output layer
-            for (int firstNeuronPos = 0; firstNeuronPos < neuronsInLayer[layer]; firstNeuronPos++) {      //loop through each neuron in the layer
-                for (int secondNeuronPos = 0; secondNeuronPos < neuronsInLayer[layer + 1]; secondNeuronPos++) {      //loop through each neuron in the next layer
-                    synapseArray[layer][firstNeuronPos][secondNeuronPos].updateWeight();
-                }
-            }
-        }
-        */
     }
 
     private double countSuccess(Integer[] target){
@@ -264,7 +252,7 @@ public class Body {
         return layerCost;
     }
 
-    private double[] calculatePercentage(String word){
+    private double[] calculatePercentage(){
         int layersAmount = neuronsInLayer.length;
         double output[] = new double[neuronsInLayer[layersAmount - 1]];
         for (int k = 0; k < neuronsInLayer[layersAmount - 1]; k++){
