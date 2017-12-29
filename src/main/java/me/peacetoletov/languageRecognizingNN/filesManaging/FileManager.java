@@ -138,6 +138,24 @@ public class FileManager {
         return weights;
     }
 
+    public void saveSuccessRate(int iteration, double trainSuccessRate, double testSuccessRate, double trainCost, double testCost) {
+        try {
+            String home = System.getProperty("user.home");
+            String dirName = home + "/LanguageRecognizingNN";
+            String path = dirName + "/success.txt";
+
+            File file = new File(path);
+            PrintWriter pw = new PrintWriter(new FileWriter(file, true));     //doesn't overwrite, adds new lines
+
+            pw.println("I " + iteration + ": TrainSR = " + trainSuccessRate + "; TestSR = " + testSuccessRate + "; TrainC =  " + trainCost + "; TestC = " + testCost);
+
+            pw.close();
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void createFilter(String allowedChars){
         filter = new Filter(allowedChars);
     }

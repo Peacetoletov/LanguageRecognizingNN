@@ -12,8 +12,10 @@ public class Body {
     private Neuron[][] neuronArray;     //neuronArray[layer][position]
     private Synapse[][][] synapseArray;     //synapseArray[firstLayer][firstPosition][secondPosition]
     private int neuronsInLayer[];
-    private ArrayList<String> trainingDataInput = new ArrayList<>();
-    private ArrayList<Integer[]> trainingDataTarget = new ArrayList<>();
+    private ArrayList<String> trainDataInput = new ArrayList<>();
+    private ArrayList<Integer[]> trainDataTarget = new ArrayList<>();
+    private ArrayList<String> testDataInput = new ArrayList<>();
+    private ArrayList<Integer[]> testDataTarget = new ArrayList<>();
     private FileManager fm = new FileManager();
     private String weightsFile;
     private String allowedChars;
@@ -64,38 +66,69 @@ public class Body {
         }
     }
 
-    public void initializeTrainingData(String data, Integer[] target){
-        trainingDataInput.add(data);
-        trainingDataTarget.add(target);
+    public void initializeTrainData(String data, Integer[] target){
+        trainDataInput.add(data);
+        trainDataTarget.add(target);
     }
 
-    public void train(){
+    public void initializeTestData(String data, Integer[] target){
+        testDataInput.add(data);
+        testDataTarget.add(target);
+    }
 
-        System.out.println("Starting learning iterations. Traning data size = " + trainingDataInput.size());
-
+    public void startTraining() {
+        System.out.println("Starting learning iterations. Traning data size = " + trainDataInput.size());
         int i = 1;
         while (true) {
-            double success = 0;
-            double totalCost = 0;
-            for (int example = 0; example < trainingDataInput.size(); example++) {
-                Integer[] target = getTarget(example);
-                String inputWord = trainingDataInput.get(example);
-                setInput(inputWord);
-                passForward();
-                success += countSuccess(target);
-                totalCost += calculateCost(target);
-                backpropagate(target);
-            }
-
-            double successRate = success / trainingDataInput.size();
-            System.out.println("Iteration " + i + " completed. Success rate = " + successRate + "; total cost = " + totalCost);
-
-            if (i % 10 == 0) {
-                System.out.println("Saving weights!");
-                saveWeights();
-            }
-
+            train(i);
             i++;
+        }
+    }
+
+    public void startTraining(int iterations) {
+        System.out.println("Starting learning iterations. Traning data size = " + trainDataInput.size());
+        int i = 1;
+        while (true) {
+            train(i);
+            if (i == iterations)
+                break;
+            i++;
+        }
+    }
+
+    private void train(int i) {
+        double trainSuccess = 0;
+        double testSuccess = 0;
+        double totalTrainCost = 0;
+        double totalTestCost = 0;
+        for (int example = 0; example < trainDataInput.size(); example++) {     //Training
+            Integer[] target = trainDataTarget.get(example);
+            String inputWord = trainDataInput.get(example);
+            setInput(inputWord);
+            passForward();
+            trainSuccess += countSuccess(target);
+            totalTrainCost += calculateCost(target);
+            backpropagate(target);
+        }
+
+        for (int example = 0; example < testDataInput.size(); example++) {     //Testing
+            Integer[] target = testDataTarget.get(example);
+            String inputWord = testDataInput.get(example);
+            setInput(inputWord);
+            passForward();
+            testSuccess += countSuccess(target);
+            totalTestCost += calculateCost(target);
+        }
+
+        double trainSuccessRate = trainSuccess / trainDataInput.size();
+        double testSuccessRate = testSuccess / testDataInput.size();
+        System.out.println("Iteration " + i + " completed. Train success rate = " + trainSuccessRate + "; Test succes rate = " + testSuccessRate + "; Train cost = " + totalTrainCost + "; Test cost = " + totalTestCost);
+
+        if (i % 10 == 0) {
+            fm.saveSuccessRate(i, trainSuccessRate, testSuccessRate, totalTrainCost, totalTestCost);
+
+            System.out.println("Saving weights!");
+            saveWeights();
         }
     }
 
@@ -130,11 +163,6 @@ public class Body {
             }
         }
         return weight;
-    }
-
-    private Integer[] getTarget(int example){
-        Integer[] target = trainingDataTarget.get(example);
-        return target;
     }
 
     private void setInput(String inputWord){
